@@ -1,8 +1,8 @@
 import React from 'react';
-import { Text } from 'react-native';
+import HomePage from './HomePage/homePage'
 
 export default App = () => {
   return (
-    <Text>Hello World</Text>
+    <HomePage/>
   )
 }
