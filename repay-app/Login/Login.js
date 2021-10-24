@@ -1,18 +1,26 @@
 import React, { useState } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Input, Button, Text } from 'react-native-elements'
-import { withRouter, Link } from "react-router-native"
+import { Link } from "react-router-native"
 
-import firebase from '../config/firebase'
+import { auth } from '../config/firebase.js'
 
-const Login = withRouter((props) => {
+const Login = ({ history }) => {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    /*
+     * Login user with firebase auth and switch to Home screen.
+     */
     const login = () => {
-        firebase.auth().signInWithEmailAndPassword(email, password)
-            .then(() => props.history.push("/home"))
+        auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+            console.log("Signed in user: " + userCredential.user.email)
+            history.push("/home")
+        }).catch(err => {
+            console.log("Error Code: " + err.code + "\nError Message: " + err.message)
+        })
     }
 
     return (
@@ -24,7 +32,7 @@ const Login = withRouter((props) => {
             <Link to="/signup"><Text>Don't have an account? Sign up</Text></Link>
         </View>
     )
-})
+}
 
 const styles = StyleSheet.create({
     container: {
