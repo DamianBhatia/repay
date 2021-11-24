@@ -2,15 +2,17 @@ import React, { useState, useEffect } from "react";
 import {View} from 'react-native'
 import { Avatar } from 'react-native-elements';
 import { Text } from 'react-native-elements';
+import { Icon } from "react-native-elements/dist/icons/Icon";
 import { ListItem, Button,Overlay} from 'react-native-elements'
-
 import styles from './styles.js'
 
 import { auth, db } from '../config/firebase.js'
-
+import { Form } from './Form'
 const Home = ({ history }) => {
+    const [Transactions, setTransactions] = useState([])
     const [user, setUser] = useState(null)
-    const [visible,setVisable] = useState(false)    
+    const [userId, setUserId] = useState(null)
+    const [visible1,setVisable1] = useState(false)
 
     const getUser = () => {
         auth.onAuthStateChanged(user => {
@@ -18,7 +20,11 @@ const Home = ({ history }) => {
                 db.collection("users").where("id", "==", user.uid).get()
                 .then(query => {
                     if (query.docs[0].exists) {
+                        console.log('entered/')
+                        setUserId(query.docs[0].id)
                         setUser(query.docs[0].data())
+                        setTransactions(query.docs[0].data().transactions)
+                     
                     } else {
                         console.log("No such document!")
                     }
@@ -32,46 +38,38 @@ const Home = ({ history }) => {
         })
     }
 
+
     useEffect(() => {
-        getUser()
+        getUser();
     }, [])
 
-    const [list, setList] = useState([
-        {
-        title: 'Movies',
-        icon: 'av-timer',
-        },
-        {
-        title: 'Bar',
-        icon: 'flight-takeoff',
-        },
-        {
-        title: 'Laurier',
-        icon: 'av-timer',
-        },
-        {
-        title: 'gas',
-        icon: 'flight-takeoff',
-        }
-    ])
+   
+    const deleteItems = (title) => {
+        let newData = Transactions.filter(({title : t})=>t!=title)
+        db.collection('users').doc(userId).update({
+            "transactions": newData
+        })
+        getUser();
 
-    const updateState = (title) => {
-        console.log(title)
-        var newlist = list.filter(({title:t}) => (t !== title))
-        console.log(newlist)
-        setList(newlist)
+    }
+
+    const additems = (items) => {
+        let temp = Transactions
+        temp.push(items)
+        db.collection('users').doc(userId).update({
+            "transactions": temp
+        })
+        toggleOverlay()
     }
 
     const toggleOverlay = () => {
-        setVisable(!visible)
+        setVisable1(!visible1)
     }
    
     return (
         <View style={styles.container}>
             <View>
-                <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
-                    <Text>Hello from Overlay!</Text>
-                </Overlay>
+                <Form visible = {visible1} toggleOverlay={toggleOverlay} additems = {additems}/>
 
                 <View style={styles.add}>
                     <Button
@@ -94,7 +92,8 @@ const Home = ({ history }) => {
                 </View>
 
                 <View>
-                { list.map(({title,icon})=>
+                 {   
+                    Transactions && Transactions.map(({title,amount,icon,request})=>
                     <ListItem.Swipeable
                         key={title}
                         leftContent={
@@ -109,13 +108,14 @@ const Home = ({ history }) => {
                             title="Delete"
                             icon={{ name: 'delete', color: 'white' }}
                             buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
-                            onPress={()=>{updateState(title)}}
+                            onPress={()=>{deleteItems(title)}}
                         />
                         }
                         >
+                        <Icon name={icon} color={request ? 'green':'red'} type='ionicon'/>
                         <ListItem.Content style={{ display: 'flex',justifyContent: 'space-between',flexDirection:'row'}}>
                             <ListItem.Title>{title}</ListItem.Title>
-                            <ListItem.Title>$25</ListItem.Title>
+                            <ListItem.Title>{amount}</ListItem.Title>
                         </ListItem.Content>
                         <ListItem.Chevron />
                     </ListItem.Swipeable>
