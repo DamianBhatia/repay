@@ -29,9 +29,8 @@ const Home = ({ history }) => {
                     } else {
                         console.log("No such document!")
                     }
-                }).catch(err => {
-                    console.log("Error Code: " + err.code + "\nError Message: " + err.message)
                 })
+                .catch(err => console.log("Error Code: " + err.code + "\nError Message: " + err.message))
             } else {
                 history.push("/")
             }
@@ -70,6 +69,11 @@ const Home = ({ history }) => {
                         onPress={() => setVisible(!visible)}
                     />
                 </View>
+
+                <Button
+                    title="Search"
+                    onPress={() => history.push("/search")}
+                />
 
                 <View style={styles.profileContainer}>
                     <View style={styles.profile}>  
