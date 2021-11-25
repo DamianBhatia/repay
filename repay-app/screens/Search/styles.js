@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native"
 
 export default StyleSheet.create({
     container: {
-        top: '5%',
+        top: '50%',
         display: 'flex',
         alignItems: 'center',
     },
@@ -18,5 +18,16 @@ export default StyleSheet.create({
     },
     loading: {
         top: '50%'
+    },
+    result: {
+        width: '100%',
+        display: 'flex'
+    },
+    user: {
+        fontWeight: '700',
+        flex: 1
+    },
+    email: {
+        color: '#808080'
     }
 })
